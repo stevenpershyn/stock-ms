@@ -1,23 +1,32 @@
-# Use a Maven image with JDK to build and run the application (no multi-stage)
-FROM maven:3.8.7-eclipse-temurin-17
+# Use an official Maven image to build the application
+FROM maven:3.8.7-eclipse-temurin-17 AS build
 
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy the pom.xml and download dependencies (layered to optimize build cache)
+# Copy the pom.xml and download dependencies (this helps in leveraging Docker cache)
 COPY pom.xml .
 
-# Download the dependencies
-RUN mvn dependency:go-offline -B
+# Download all dependencies (to avoid re-downloading every time code changes)
+RUN mvn dependency:go-offline
 
-# Copy the entire project source code
+# Copy the source code to the container
 COPY src ./src
 
-# Package the application
+# Build the application
 RUN mvn clean package -DskipTests
 
-# Expose the application port
-EXPOSE 8081
+# Use an official OpenJDK image to run the application
+FROM openjdk:17-jdk-slim
 
-# Run the application directly from the same image, as build and runtime are together
-CMD [ "java", "-jar", "target/myapp-0.0.1-SNAPSHOT.jar" ]
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the JAR file from the build stage
+COPY --from=build /app/target/order-ms-*.jar /app/order-ms.jar
+
+# Expose the port your app runs on (replace with your actual port)
+EXPOSE 8080
+
+# Command to run the application
+ENTRYPOINT ["java", "-jar", "/app/order-ms.jar"]
