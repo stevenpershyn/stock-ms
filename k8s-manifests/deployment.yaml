@@ -1,0 +1,21 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-ms
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-ms
+  template:
+    metadata:
+      labels:
+        app: order-ms
+    spec:
+      containers:
+      - name: order-ms
+        image: stevenpershyn/orderms:latest
+        ports:
+        - containerPort: 8080
