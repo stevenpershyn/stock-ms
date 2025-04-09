@@ -2,20 +2,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: order-ms
+  name: stock-ms
   namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: order-ms
+      app: stock-ms
   template:
     metadata:
       labels:
-        app: order-ms
+        app: stock-ms
     spec:
       containers:
-      - name: order-ms
-        image: stevenpershyn/orderms:latest
+      - name: stock-ms
+        image: stevenpershyn/stockms:latest
         ports:
         - containerPort: 8080
